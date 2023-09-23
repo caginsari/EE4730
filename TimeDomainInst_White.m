@@ -1,0 +1,80 @@
+close all
+clear
+%% Import Data
+SampleMaterial = importdata("D:\Delft University of Technology\EE4630\TimeDomainInstruction\Group 1\White-2040um-300avgs.txt") ;
+TimeSample = SampleMaterial.data(:,1);
+SignalSample = SampleMaterial.data(:,2);
+
+Air = importdata("D:\Delft University of Technology\EE4630\TimeDomainInstruction\Group 1\Air-300avgs.txt") ;
+TimeAir = Air.data(:,1);
+SignalAir = Air.data(:,2);
+
+%% Time Domain Processing: Instruction Lecture EE4730
+close all
+
+%% Constants
+dSample = 2.04e-3 ;
+SoL = 3e8 ;
+
+%% Sample Material
+% Time_ps(isnan(Time_ps)) = 0 ;
+% THzSignal_Au(isnan(THzSignal_Au)) = 0 ;
+
+[xG,~] = find(max(findpeaks(SignalSample) )==SignalSample );
+[xA,~] = find(max(findpeaks(SignalAir) )==SignalAir ); 
+
+figure
+subplot(1,2,1)
+hold on 
+plot(TimeSample,SignalSample,'DisplayName','SampleMaterial') ;
+plot(TimeAir,SignalAir,'DisplayName','Air') ;
+hold off
+xline(TimeSample(xG),'k-',sprintf('%.1f ps',TimeSample(xG)))
+xline(TimeAir(xA),'k-',sprintf('%.1f ps',TimeAir(xA)))
+xlabel('Time[ps]') ;
+ylabel('Strength') ;
+title('Sample Material,525um') ;
+legend('Location','best')
+xlim([-230 -180])
+grid on
+grid minor
+
+tDif = ( TimeSample(xG)-TimeAir(xA) ) *1e-12 ;
+er_G = (SoL .*(tDif+dSample/SoL)/dSample)^2 ;
+sprintf('Sample Material is Teflon; er:%.2f',er_G)
+
+fftSample = abs(fft( SignalSample ) ) ;
+ssb_fftSample = fftSample(1:length(fftSample)/2) ;
+dt = TimeSample(4) -  TimeSample(3);
+BW = 1./dt ;
+
+fftAir = abs(fft( SignalAir ) ) ;
+ssb_fftAir = fftAir(1:length(fftAir)/2) ;
+dt = TimeAir(4) -  TimeAir(3);
+BWAir = 1./dt ;
+
+subplot(1,2,2)
+hold on
+plot(10.*log10(ssb_fftSample) ,'DisplayName','SampleMaterial') ;
+% plot(fft(abs(Sample525um300avgs.THzSignalau) ),'DisplayName','SampleMaterial') ;
+plot(10.*log10(ssb_fftAir) ,'DisplayName','Air') ;
+xlabel('Frequency[THz]') ;
+ylabel('Strength') ;
+title('Sample Material,525um') ;
+legend('Location','best')
+grid on
+grid minor
+
+
+
+% subplot(1,2,2)
+% hold on
+% plot(Sample525um300avgsfft.FrequencyTHz,Sample525um300avgsfft.THzSignalau,'DisplayName','SampleMaterial') ;
+% plot(Air300avgsfft.FrequencyTHz,Air300avgsfft.THzSignalau,'DisplayName','Air') ;
+% xlabel('Frequency[THz]') ;
+% ylabel('Strength') ;
+% title('Sample Material,525um') ;
+% legend('Location','best')
+% xlim([0 2])
+% grid on
+% grid minor
