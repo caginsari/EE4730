@@ -36,7 +36,7 @@ grid minor
 [~,yA] = max(findpeaks(SignalAir) ); 
 
 tDif = ( TimeGray(yG)-TimeAir(yA) ) *1e-12 ;
-er_G = (SoL .*(tDif+dGray/SoL)/dGray) ;
+er_G = (SoL .*(tDif+dGray/SoL)/dGray)^2 ;
 
 fftGray = abs(fft( SignalGray ) ) ;
 ssb_fftGray = fftGray(1:length(fftGray)/2) ;
